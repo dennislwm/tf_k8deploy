@@ -21,6 +21,7 @@ We will deploy a new GKE cluster with **Terraform** to Google Cloud with GitHub 
 * Google Cloud `project_id`
 * Google Cloud Region
   * Find the cheapest instance by provider and `region` at [Instance Pricing](https://www.instance-pricing.com)
+* Google Cloud Storage `tf-k8deploy`
 * Google Cloud SDK `gcloud`
 * `kubectl`
 * `terraform`

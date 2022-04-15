@@ -20,7 +20,7 @@ jobs:
     # 2. Install terraform CLI
     # 3. Run terraform init
     # 4. Run terraform validate
-    # 5. Run terraform state
+    # 5. Run terraform state list
     # 6. Run terraform plan
     # 7. Conditionally run terraform apply (if merged to main)
     # 8. Conditionally run terraform destroy (if branch contains destroy)
@@ -39,8 +39,8 @@ jobs:
     - name: Terraform Validate
       run: terraform validate
 
-    - name: Terraform State
-      run: terraform state
+    - name: Terraform State List
+      run: terraform state list
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
