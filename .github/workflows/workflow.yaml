@@ -56,5 +56,5 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Terraform Destroy
-      if: contains(github.ref, "destroy")
+      if: startsWith(github.ref, 'destroy')
       run: terraform destroy -auto-approve
