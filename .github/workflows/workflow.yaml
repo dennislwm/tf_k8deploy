@@ -23,7 +23,7 @@ jobs:
     # 5. Run terraform state list
     # 6. Run terraform plan
     # 7. Conditionally run terraform apply (if merged to main)
-    # 8. Conditionally run terraform destroy (if branch contains destroy)
+    # 8. Conditionally run terraform destroy (if branch starts with 'destroy' AND merged to main)
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -56,5 +56,5 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Terraform Destroy
-      if: startsWith(github.ref, 'destroy')
+      if: startsWith(github.ref, 'destroy') && github.event_name == 'push'
       run: terraform destroy -auto-approve

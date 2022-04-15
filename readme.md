@@ -3,28 +3,80 @@
 <!-- TOC -->
 
 - [tf_k8deploy](#tf_k8deploy)
-- [Deploy a New Cluster with Terraform](#deploy-a-new-cluster-with-terraform)
+- [Introduction](#introduction)
   - [Requirements](#requirements)
+- [Deploy a New Cluster with GitHub Actions](#deploy-a-new-cluster-with-github-actions)
+  - [Prerequisites](#prerequisites)
+  - [Create a New GKE Cluster](#create-a-new-gke-cluster)
+  - [Destroy an Existing GKE Cluster](#destroy-an-existing-gke-cluster)
+- [Deploy a New Cluster with your Workstation](#deploy-a-new-cluster-with-your-workstation)
   - [Step 1 - Deploy GKE Cluster](#step-1---deploy-gke-cluster)
-  - [Configure access to your GKE Cluster with kubectl](#configure-access-to-your-gke-cluster-with-kubectl)
+- [Configure access to your GKE Cluster with kubectl](#configure-access-to-your-gke-cluster-with-kubectl)
 
 <!-- /TOC -->
 ---
-# Deploy a New Cluster with Terraform
+# Introduction
 
 We will deploy a new GKE cluster with **Terraform** to Google Cloud with GitHub Actions.
 
 ## Requirements
 
 * Google Cloud Account
-  * Create a [New GCP Account](https://cloud.google.com/free) with $300 in free credits (credit card required)
 * Google Cloud `project_id`
 * Google Cloud Region
-  * Find the cheapest instance by provider and `region` at [Instance Pricing](https://www.instance-pricing.com)
 * Google Cloud Storage `tf-k8deploy`
 * Google Cloud SDK `gcloud`
 * `kubectl`
 * `terraform`
+
+# Deploy a New Cluster with GitHub Actions
+
+## Prerequisites
+
+1. Create a [New GCP Account](https://cloud.google.com/free) with $300 in free credits for three months (credit card required).
+
+2. Create a New GCP Project.
+
+3. Create a [Service Account](https://console.cloud.google.com/iam-admin/serviceaccounts) under the new project.
+
+4. Click on Manage Keys under the new service account, then Add Key > Create New Key.
+
+> Download and save the key as a JSON file for your Google credentials.
+
+## Create a New GKE Cluster
+
+1. Create a new git branch.
+
+2. Navigate to code repository for GKE Deployment 
+
+```sh
+cd learn-terraform-provision-gke-cluster 
+```
+
+3. Update the `terraform.tfvars` file with your PROJECT_ID and GKE region. 
+
+> Find the cheapest instance by provider and `region` at [Instance Pricing](https://www.instance-pricing.com)
+
+```yml
+project_id = "PROJECT_ID"
+region     = "asia-southeast1"
+```
+
+4. Add and commit the file.
+
+> Create a merge request which will trigger a GitHub Actions CI.
+
+## Destroy an Existing GKE Cluster
+
+1. Create a new branch that starts with 'destroy'
+
+2. Update any file.
+
+3. Add and commit the file.
+
+> Create a merge request which will trigger a GitHub Actions CI.
+
+# Deploy a New Cluster with your Workstation
 
 ## Step 1 - Deploy GKE Cluster
 Navigate to code repository for GKE Deployment 
@@ -69,7 +121,7 @@ Delete the GKE Cluster when not in used to save on cost.
 terraform destroy
 ```
 
-## Configure access to your GKE Cluster with kubectl 
+# Configure access to your GKE Cluster with kubectl 
 
 ``` 
 gcloud auth login
