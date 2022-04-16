@@ -21,8 +21,8 @@
 We will deploy a new GKE cluster with **Terraform** to Google Cloud with GitHub Actions.
 
 There are six stages in the CI, of which the last two stages are conditional.
-* terraform validate
 * terraform init
+* terraform validate
 * terraform state list
 * terraform plan
 * terraform apply (conditional)
@@ -30,9 +30,9 @@ There are six stages in the CI, of which the last two stages are conditional.
 
 There are two ways of triggering the CI:
 * Create a `pull_request`
-  * Validate, Init, State List, Plan
+  * Init, Validate, State List, Plan
 * Merge `pull_request` to `main` branch
-  * Validate, Init, State List, Plan
+  * Init, Validate, State List, Plan
   * Apply | Destroy (either condition)
 
 Conditions:

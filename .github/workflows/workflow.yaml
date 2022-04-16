@@ -18,10 +18,9 @@ jobs:
 
     # 1. Checkout the repository to the GitHub Actions runner
     # 2. Install terraform CLI
-    # 3. Terraform validate
-    # 4. Terraform init, state list, plan
-    # 5. Conditionally run terraform apply (if merged to main)
-    # 6. Conditionally run terraform destroy (if branch starts with 'destroy' AND merged to main)
+    # 3. Terraform init, validate, state list, plan
+    # 4. Conditionally run terraform apply (if merged to main)
+    # 5. Conditionally run terraform destroy (if branch starts with 'destroy' AND merged to main)
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -35,23 +34,21 @@ jobs:
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
 
-    - name: Terraform Validate
-      run: terraform validate
-
-    - name: Terraform Init, State List, Plan
+    - name: Terraform Init, Validate, State List, Plan
       run: |
         terraform init
+        terraform validate
         terraform state list
         terraform plan
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Terraform Apply
-      if: github.base_ref == 'refs/heads/main' && github.event_name == 'push' && startsWith(github.head_ref, 'destroy') != true 
+      if: github.base_ref == 'main' && github.event_name == 'push' && startsWith(github.head_ref, 'destroy') != true 
       run: terraform apply -auto-approve
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Terraform Destroy
-      if: github.base_ref == 'refs/heads/main' && github.event_name == 'push' && startsWith(github.head_ref, 'destroy') == true
+      if: github.base_ref == 'main' && github.event_name == 'push' && startsWith(github.head_ref, 'destroy') == true
       run: terraform destroy -auto-approve
