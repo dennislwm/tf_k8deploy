@@ -51,11 +51,14 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Terraform Apply
-      if: github.base_ref == 'main' && github.event_name == 'push' && startsWith(github.head_ref, 'destroy') != true 
+      if: github.base_ref == 'refs/heads/main' && github.event_name == 'push' && hashFiles('destroy.tf') == ''
       run: terraform apply -auto-approve
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     - name: Terraform Destroy
-      if: github.base_ref == 'main' && github.event_name == 'push' && startsWith(github.head_ref, 'destroy') == true
-      run: terraform destroy -auto-approve
+      if: github.base_ref == 'refs/heads/main' && github.event_name == 'push' && hashFiles('destroy.tf') != ''
+      run: |
+        terraform destroy -auto-approve
+        git rm destroy.tf
+        git push
