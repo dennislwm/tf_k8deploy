@@ -4,10 +4,11 @@
 
 - [tf_k8deploy](#tf_k8deploy)
 - [Introduction](#introduction)
-  - [Requirements](#requirements)
 - [Deploy a New Cluster with GitHub Actions](#deploy-a-new-cluster-with-github-actions)
-  - [Prerequisites](#prerequisites)
-  - [Create a New GKE Cluster](#create-a-new-gke-cluster)
+  - [Requirements](#requirements)
+  - [Google Cloud Account](#google-cloud-account)
+  - [GitHub Actions Secret](#github-actions-secret)
+  - [Trigger CI to Create a New GKE Cluster](#trigger-ci-to-create-a-new-gke-cluster)
   - [Destroy an Existing GKE Cluster](#destroy-an-existing-gke-cluster)
 - [Deploy a New Cluster with your Workstation](#deploy-a-new-cluster-with-your-workstation)
   - [Step 1 - Deploy GKE Cluster](#step-1---deploy-gke-cluster)
@@ -19,63 +20,123 @@
 
 We will deploy a new GKE cluster with **Terraform** to Google Cloud with GitHub Actions.
 
+There are six stages in the CI, of which the last two stages are conditional.
+* terraform validate
+* terraform init
+* terraform state list
+* terraform plan
+* terraform apply (conditional)
+* terraform destroy (conditional)
+
+There are two ways of triggering the CI:
+* Create a `pull_request`
+  * Validate, Init, State List, Plan
+* Merge `pull_request` to `main` branch
+  * Validate, Init, State List, Plan
+  * Apply | Destroy (either condition)
+
+Conditions:
+* The `terraform apply` stage runs on merge, if pull request's branch name does not start with `destroy`.
+* The `terraform destroy` stage runs on merge, if pull request's branch name starts with `destroy`.
+
+---
+# Deploy a New Cluster with GitHub Actions
+
 ## Requirements
 
 * Google Cloud Account
-* Google Cloud `project_id`
-* Google Cloud Region
-* Google Cloud Storage `tf-k8deploy`
-* Google Cloud SDK `gcloud`
+  * Project
+  * Region
+  * Service Account
+  * Storage
+* `gcloud`
 * `kubectl`
 * `terraform`
 
-# Deploy a New Cluster with GitHub Actions
+## Google Cloud Account
 
-## Prerequisites
-
+<details>
+<summary>Click here to <strong>setup your Google Cloud Account.</strong></summary>
 1. Create a [New GCP Account](https://cloud.google.com/free) with $300 in free credits for three months (credit card required).
 
-2. Create a New GCP Project.
+2. Navigate to the GCP Console and create a New GCP Project, e.g. `tf-k8deploy`.
 
-3. Create a [Service Account](https://console.cloud.google.com/iam-admin/serviceaccounts) under the new project.
+3. Navigate to the Storage and create a New GCP Storage, e.g. `tf-k8deploy`.
 
-4. Click on Manage Keys under the new service account, then Add Key > Create New Key.
+4. Navigate to IAM and create a [Service Account](https://console.cloud.google.com/iam-admin/serviceaccounts) under the new project.
 
-> Download and save the key as a JSON file for your Google credentials.
+5. Under the new service account menu, Click on Manage Keys, then Add Key > Create New Key. You will need this key in your GitHub Actions secrets.
 
-## Create a New GKE Cluster
+> Download and save the key as JSON file for your Google credentials.
+</details>
 
-1. Create a new git branch.
+## GitHub Actions Secret
 
-2. Navigate to code repository for GKE Deployment 
+<details>
+<summary>Click here to <strong>setup your GitHub Actions Secret.</strong></summary>
+1. Navigate to your GitHub repo and Click Settings. 
+
+2. Under Security menu, Click Secrets > Actions.
+
+3. Click New Repository Secret, and enter the following:
+  * Name: `GOOGLE_CREDENTIALS`
+  * Value: *Copy and paste the contents of your Google credentials JSON file. For example:*
+```json
+{
+  "type": "service_account",
+  "project_id": "tf-k8deploy",
+  "private_key_id": "PRIVATE_KEY_ID",
+  "private_key": "PRIVATE_KEY",
+  "client_email": "CLIENT_EMAIL",
+  "client_id": "CLIENT_ID",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sa-tf-k8deploy%40tf-k8deploy.iam.gserviceaccount.com"
+}
+```
+</details>
+
+## Trigger CI to Create a New GKE Cluster
+
+1. Clone this repo to your workstation.
+
+2. Navigate to your GitHub repo folder and create a new git branch.
 
 ```sh
-cd learn-terraform-provision-gke-cluster 
+git checkout -b BRANCH_NAME
 ```
 
-3. Update the `terraform.tfvars` file with your PROJECT_ID and GKE region. 
+3. Navigate to the subfolder `cd learn-terraform-provision-gke-cluster`.
+
+4. Update the `terraform.tfvars` file with your PROJECT_ID and GCP_REGION. 
 
 > Find the cheapest instance by provider and `region` at [Instance Pricing](https://www.instance-pricing.com)
 
 ```yml
 project_id = "PROJECT_ID"
-region     = "asia-southeast1"
+region     = "GCP_REGION"
 ```
 
-4. Add and commit the file.
+5. Add and commit the file, then `git push --set-upstream origin BRANCH_NAME`
 
-> Create a merge request which will trigger a GitHub Actions CI.
+6. Navigate to your GitHub console and create a merge request. This will trigger a GitHub Actions CI.
+
+7. Merge your pull request to `main` branch to perform `terraform apply`.
 
 ## Destroy an Existing GKE Cluster
 
-1. Create a new branch that starts with 'destroy'
+1. Create a new branch that starts with 'destroy', e.g. `destroy_mybranch`
 
 2. Update any file.
 
-3. Add and commit the file.
+3. Add and commit the file, then `git push --set-upstream origin DESTROY_BRANCH_NAME`.
 
-> Create a merge request which will trigger a GitHub Actions CI.
+4. Navigate to your GitHub console and create a merge request. This will trigger a GitHub Actions CI.
 
+5. Merge your pull request to `main` branch to perform `terraform destroy`.
+
+---
 # Deploy a New Cluster with your Workstation
 
 ## Step 1 - Deploy GKE Cluster
