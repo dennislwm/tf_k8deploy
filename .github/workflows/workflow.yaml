@@ -23,14 +23,14 @@ jobs:
     # 5. Conditionally run terraform apply (if merged to main)
     # 6. Conditionally run terraform destroy (if branch starts with 'destroy' AND merged to main)
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
     - name: Debug
       run: |
         echo $github.event_name
         echo $github.base_ref
         echo $github.head_ref
-
-    - name: Checkout
-      uses: actions/checkout@v2
 
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
