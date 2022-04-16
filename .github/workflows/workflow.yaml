@@ -28,9 +28,9 @@ jobs:
 
     - name: Debug
       run: |
-        echo $github.event_name
-        echo $github.base_ref
-        echo $github.head_ref
+        echo "$GITHUB_EVENT_NAME"
+        echo "$GITHUB_BASE_REF"
+        echo "$GITHUB_HEAD_REF"
 
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
